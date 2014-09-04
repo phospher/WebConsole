@@ -1,0 +1,55 @@
+{% load staticfiles %}
+<html>
+<head>
+<title>test</title>
+<script type="text/javascript" src="{% static "jquery-2.1.1.min.js" %}"></script>
+</head>
+<body>
+	<textarea id="taConsole" rows="30" style="width: 100%">&gt;&gt;</textarea>
+
+	<script type="text/javascript">
+		$(function() {
+			$("#taConsole").keydown(function(event) {
+				var result = true;
+				switch (event.which) {
+				case 8:
+					result = onBackspaceDown($(this), event);
+					break;
+				case 13:
+					result = onEnterDown($(this), event);
+					break;
+				}
+				$(this).scrollTop($(this)[0].scrollHeight);
+				return result;
+			});
+		});
+
+		function onBackspaceDown(obj, event) {
+			return />>$/.test($(obj).val()) ? false : true;
+		}
+
+		function onEnterDown(obj, event) {
+			var matches = $("#taConsole").val().match(/>>([^\n]*)$/);
+			if (matches != null && matches.length > 1 && matches[1] != null
+					&& $.trim(matches[1]).length > 0) {
+				$(obj).attr('readonly', 'readonly');
+				$.ajax({
+					url : '{% url "ConsoleHome" %}',
+					data : {
+						command : $.trim(matches[1])
+					},
+					async : false,
+					type : 'POST',
+					success : function(data) {
+						if (data.type === 'CONSOLE') {
+							$(obj).val($(obj).val() + '\n' + data.result);
+						} else if (data.type === 'FILE') {
+							window.open(data.result, 'NewWindow');
+						}
+					}
+				});
+			}
+		}
+	</script>
+</body>
+</html>
