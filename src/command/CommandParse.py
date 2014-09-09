@@ -4,7 +4,13 @@ class OutputType(object):
     Console = 0
     File = 1
 
-ParseCommandResult = namedtuple('ParseCommandResult', 'command, args, output_type, output_name')
+class ParseCommandResult(object):
+    def __init__(self, **kwargs):
+        for key in kwargs:
+            self.__dict__[key] = kwargs[key]
+    
+    def __setattr__(self, name, value):
+        self.__dict__[name] = value
 
 def _parse_command(command):
     command_array = command.split(' ')
@@ -12,7 +18,7 @@ def _parse_command(command):
         return ('', [])
     else:
         args = command_array[1:]
-        return (command[0], args)
+        return (command_array[0], args)
 
 def parse_input(input):
     input_strip = input.strip()
@@ -22,9 +28,10 @@ def parse_input(input):
         input_array = input_strip.split('>')
         command_result = _parse_command(input_array[0].strip())
         result = ParseCommandResult(command=command_result[0], args=command_result[1])
-        if len(input_array) >= 2 and input_strip[1].strip() != '':
+        if len(input_array) >= 2 and input_array[1].strip() != '':
             result.output_type = OutputType.File
-            result.output_name = input_strip[1].strip()
+            result.output_name = input_array[1].strip()
         else:
             result.output_type = OutputType.Console
             result.output_name = ''
+        return result
