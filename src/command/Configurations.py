@@ -1,5 +1,5 @@
 import os
-import 
+from command import DynamicObject
 try:
     import xml.etree.cElementTree as ET
 except ImportError:
@@ -7,22 +7,22 @@ except ImportError:
 
 class CommandConfigurationManager(object):
     config_object = None
+    config_timestamp = None
     file_name = 'CommandConfiguration.xml'
     
     def __init__(self, file_path):
         assert os.path.isdir(file_path)
-        self.file_dir_path = file_path
+        self.file_full_path = os.path.join(file_path, CommandConfigurationManager.file_name)
         if self._need_refresh():
-            pass
+            self._read_config_from_file()
     
     def _need_refresh(self):
-        if CommandConfigurationManager.config_object is None:
-            return True
-        else:
-            return False
+        return CommandConfigurationManager.config_object is None or os.path.getmtime(self.file_full_path) > CommandConfigurationManager.config_timestamp
     
-    def read_config_from_file(self):
-       root = ET.parse(os.path.join(self.file_dir_path, CommandConfigurationManager.file_name))
-       result=[]
-       for item in root.iter('command'):
-           pass
+    def _read_config_from_file(self):
+        root = ET.parse(self.file_full_path)
+        result = []
+        for item in root.iter('command'):
+            result.append(DynamicObject(command=item.get('command', default=None), callable_object=item.get('callableObject', default=None)))
+        CommandConfigurationManager.config_timestamp = os.path.getmtime(self.file_full_path)
+        CommandConfigurationManager.config_object = result
