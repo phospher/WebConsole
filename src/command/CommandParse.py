@@ -1,4 +1,3 @@
-from collections import namedtuple
 from command import DynamicObject
 
 class OutputType(object):
