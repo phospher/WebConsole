@@ -1,6 +1,6 @@
 import os
 import importlib
-from command import DynamicObject
+import command
 try:
     import xml.etree.cElementTree as ET
 except ImportError:
@@ -24,7 +24,7 @@ class CommandConfigurationManager(object):
         root = ET.parse(self.file_full_path)
         result = []
         for item in root.iter('command'):
-            result.append(DynamicObject(command=item.get('command', None), callable_object=item.get('callableObject', None)))
+            result.append(command.DynamicObject(command=item.get('command', None), callable_object=item.get('callableObject', None)))
         CommandConfigurationManager.config_timestamp = os.path.getmtime(self.file_full_path)
         CommandConfigurationManager.config_object = result
         return result
@@ -33,10 +33,5 @@ class CommandConfigurationManager(object):
         config = [x for x in CommandConfigurationManager.config_object if x.command == command]
         if len(config) == 0:
             return None
-        module_name, obj_name = config[0].callable_object.rsplit('.', 1)
-        try:
-            module = importlib.import_module(module_name)
-            obj = getattr(module, obj_name)
-            return obj if callable(obj) else None
-        except:
-            return None
+        else:
+            return config[0].callable_object
