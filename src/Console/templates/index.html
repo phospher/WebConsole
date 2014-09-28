@@ -12,7 +12,7 @@
 			var cookieValue = null;
 			if (document.cookie && document.cookie != '') {
 				var cookies = document.cookie.split(';');
-				for ( var i = 0; i < cookies.length; i++) {
+				for (var i = 0; i < cookies.length; i++) {
 					var cookie = jQuery.trim(cookies[i]);
 					// Does this cookie string begin with the name we want?
 					if (cookie.substring(0, name.length + 1) == (name + '=')) {
@@ -61,21 +61,24 @@
 			if (matches != null && matches.length > 1 && matches[1] != null
 					&& $.trim(matches[1]).length > 0) {
 				$(obj).attr('readonly', 'readonly');
-				$.ajax({
-					url : '{% url "RunCommand" %}',
-					data : {
-						command : $.trim(matches[1])
-					},
-					async : false,
-					type : 'POST',
-					success : function(data) {
-						if (data.type === 'CONSOLE') {
-							$(obj).val($(obj).val() + '\n' + data.result);
-						} else if (data.type === 'FILE') {
-							window.open(data.result, 'NewWindow');
-						}
-					}
-				});
+				$
+						.ajax({
+							url : '{% url "RunCommand" %}',
+							data : {
+								command : $.trim(matches[1])
+							},
+							async : false,
+							type : 'POST',
+							success : function(data) {
+								if (data.type === 'CONSOLE') {
+									$(obj).val(
+											$(obj).val() + '\n' + data.result);
+								} else if (data.type === 'FILE') {
+									window.open('download/' + data.result,
+											'NewWindow');
+								}
+							}
+						});
 			}
 			$(obj).removeAttr('readonly');
 			$(obj).val($(obj).val() + '\n>>');

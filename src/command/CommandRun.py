@@ -1,6 +1,8 @@
 import importlib, time, os
 from command import CommandParse
 
+_FILE_PATH = os.path.join(os.getcwd(), 'DownloadFiles')
+
 def _import_object(callable_object):
     module_name, obj_name = callable_object.rsplit('.', 1)
     module = importlib.import_module(module_name)
@@ -11,10 +13,9 @@ def _generate_colsole_result(command_parse_result, command_result):
 
 def _generate_file_result(command_parse_result, command_resut):
     file_name = '%s_%d' % (command_parse_result.output_name, (time.time() * 100))
-    file_path = os.path.join(os.getcwd(), 'DownloadFiles')
-    if not os.path.exists(file_path):
-        os.makedirs(file_path)
-    with open(os.path.join(file_path, file_name), 'w') as result_file:
+    if not os.path.exists(_FILE_PATH):
+        os.makedirs(_FILE_PATH)
+    with open(os.path.join(_FILE_PATH, file_name), 'w') as result_file:
         result_file.write('>>')
         result_file.write(command_parse_result.command)
         for item in command_parse_result.args:
@@ -41,3 +42,7 @@ def run_callable_object(callable_object, args):
 
 def generate_command_result(command_parse_result, command_result):
     return GENERATE_COMMAND_RESULT[command_parse_result.output_type](command_parse_result, command_result)
+
+def get_result_file(file_name):
+    with open(os.path.join(_FILE_PATH, file_name)) as f:
+        return f.read()
